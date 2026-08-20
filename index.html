@@ -3,131 +3,117 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DOLLAR WITH PATCY - PRO MAX</title>
+<title>MEGAWAVE PRO - Patcy</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#050507;color:#fff;font-family:Arial;padding:8px}
-.header{background:linear-gradient(135deg,#00ff88,#00cc6a);color:#000;padding:15px;border-radius:15px;text-align:center;font-weight:900;font-size:20px;margin-bottom:10px}
-.card{background:#121216;border:1px solid #00ff8844;border-radius:14px;padding:14px;margin:8px 0}
-.profile{display:flex;justify-content:space-between;align-items:center}
-.bal{font-size:28px;font-weight:900;color:#00ff88}
-.stat{display:flex;justify-content:space-around;text-align:center;margin:10px 0}
-.stat div b{display:block;font-size:18px;color:#ffcc00}
-input,select{width:100%;padding:11px;margin:5px 0;border-radius:10px;border:none;background:#1e1e24;color:#fff}
-button{width:100%;padding:13px;border-radius:12px;border:none;font-weight:900;margin:5px 0;font-size:15px}
-.start{background:#00ff88;color:#000} .stop{background:#ff2a4a;color:#fff}
-.live{font-size:50px;text-align:center;font-weight:900;color:#00ff88}
-.tick{font-size:12px;color:#888;text-align:center}
-.win{color:#00ff88;font-weight:bold} .loss{color:#ff3344;font-weight:bold}
-table{width:100%;font-size:11px;border-collapse:collapse} th{color:#00ff88;padding:8px;border-bottom:1px solid #222} td{padding:7px;border-bottom:1px solid #1a1a1a;text-align:center}
-.profit-box{background:linear-gradient(135deg,#111,#1a1a1a);border:2px solid #00ff88;border-radius:12px;padding:12px;text-align:center}
+*{margin:0;padding:0;box-sizing:border-box} body{background:#06060a;color:#fff;font-family:Arial;padding:10px}
+.h{background:linear-gradient(90deg,#ffcc00,#00ff88);color:#000;padding:18px;border-radius:15px;text-align:center;font-weight:900;font-size:22px}
+.card{background:#14141f;border:1px solid #333;border-radius:14px;padding:14px;margin:10px 0}
+.bal{font-size:32px;color:#00ff88;font-weight:900} .live{font-size:65px;text-align:center;font-weight:900;color:#ffcc00}
+input,select{width:100%;padding:12px;margin:5px 0;border-radius:10px;background:#1f1f2d;color:#fff;border:1px solid #444}
+button{width:100%;padding:14px;border-radius:12px;border:none;font-weight:900;margin:5px 0;font-size:16px}
+.start{background:#00ff88;color:#000} .stop{background:#ff2340;color:#fff}
+.mpesabtn{background:#00a651;color:#fff} .depobtn{background:#ffcc00;color:#000}
+table{width:100%;font-size:11px} th{color:#ffcc00} td{padding:6px;text-align:center;border-bottom:1px solid #222}
+.win{color:#00ff88} .loss{color:#ff4455} small{color:#888}
 </style>
 </head>
 <body>
-<div class="header">💵 DOLLAR WITH PATCY - PRO MAX ULTRA</div>
+<div class="h">🌊 MEGAWAVE PRO - PATCY x2.1</div>
 
-<div class="card profile">
-<div><small>PROFILE</small><br><b id="login">Not Connected</b><br><small id="acc">-</small></div>
-<div style="text-align:right"><small>TOTAL PROFIT</small><div class="bal" id="tProfit">$0.00</div><small id="wins">0W / 0L</small></div>
+<div class="card">
+<div style="display:flex;justify-content:space-between">
+<div><small>ACCOUNT</small><br><b id="acc">Not Connected</b><br><small id="acc2">Weka token</small></div>
+<div style="text-align:right"><small>BALANCE</small><div class="bal" id="bal">$0.00</div><small id="pnl">Profit: $0.00</small></div>
+</div>
 </div>
 
 <div class="card">
-<div class="stat">
-<div><b id="currBal">$0.00</b><small>Balance</small></div>
-<div><b id="nextStake">$0.35</b><small>Next Stake</small></div>
-<div><b id="lvlNow">0/4</b><small>Level</small></div>
+<div style="display:flex;justify-content:space-around;text-align:center">
+<div><b id="nextStake" style="color:#ffcc00">$0.35</b><br><small>Next Stake</small></div>
+<div><b id="lvl">0/4</b><br><small>Level</small></div>
+<div><b id="wr">0% 0W/0L</b><br><small>Stats</small></div>
 </div>
 <div class="live" id="digit">-</div>
-<div class="tick">Last Digit | Market: <b id="market">R_100</b> | Tick: <span id="price">-</span></div>
+<div style="text-align:center"><small>Market: <span id="mktTxt">-</span> | Price: <span id="price">-</span> | Last Digit: <span id="lastDig">-</span></small><br><small id="log" style="color:#00ff88">Ready</small></div>
 </div>
 
 <div class="card">
-<input id="token" placeholder="Paste Deriv API Token hapa">
-<div style="display:flex;gap:6px">
-<select id="mkt"><option value="R_100">Volatility 100</option><option value="R_50">Volatility 50</option><option value="R_25">Volatility 25</option></select>
-<select id="stakeType"><option value="0.35">Base $0.35</option><option value="0.50">$0.50</option><option value="1">$1</option></select>
-</div>
-<button class="start" onclick="startPro()">▶️ START PRO BOT - MULTIPLY x100</button>
-<button class="stop" onclick="stopPro()">⏸️ STOP</button>
-<p id="status" style="text-align:center;margin-top:8px;color:#00ff88">Ready</p>
+<input id="token" placeholder="Weka Deriv API Token a1-...">
+<select id="market">
+<option value="R_10">Volatility 10 Index</option>
+<option value="R_25">Volatility 25 Index</option>
+<option value="R_50">Volatility 50 Index</option>
+<option value="R_75">Volatility 75 Index</option>
+<option value="R_100" selected>Volatility 100 Index</option>
+<option value="R_10_1s">Volatility 10 (1s)</option>
+<option value="R_25_1s">Volatility 25 (1s)</option>
+<option value="R_50_1s">Volatility 50 (1s)</option>
+<option value="R_75_1s">Volatility 75 (1s)</option>
+<option value="R_100_1s">Volatility 100 (1s)</option>
+<option value="1HZ10V">Volatility 10 - 1s</option>
+<option value="1HZ25V">Volatility 25 - 1s</option>
+<option value="1HZ50V">Volatility 50 - 1s</option>
+<option value="1HZ75V">Volatility 75 - 1s</option>
+<option value="1HZ100V">Volatility 100 - 1s</option>
+</select>
+<select id="baseStake"><option value="0.35">Base $0.35 (SAFE)</option><option value="0.5">$0.50</option><option value="1">$1</option><option value="2">$2 (RISKY)</option></select>
+<button class="start" onclick="startBot()">▶️ START MEGAWAVE x2.1</button>
+<button class="stop" onclick="stopBot()">⏸️ STOP</button>
 </div>
 
-<div class="card profit-box">
-<div style="display:flex;justify-content:space-around">
-<div>Today: <b id="todayP" style="color:#00ff88">$0.00</b></div>
-<div>Multiplier: <b style="color:#ffcc00">x2.1</b></div>
-<div>WinRate: <b id="wr">0%</b></div>
+<div class="card" style="border:2px solid #00a651">
+<h4 style="color:#00a651;text-align:center">🇰🇪 MPESA DEPOSIT & WITHDRAWAL</h4>
+<div style="display:flex;gap:6px;margin-top:8px">
+<button class="mpesabtn" onclick="window.open('https://app.deriv.com/cashier/deposit','_blank')">💰 DEPOSIT MPESA</button>
+<button class="depobtn" onclick="window.open('https://app.deriv.com/cashier/withdrawal','_blank')">💸 WITHDRAW MPESA</button>
 </div>
+<small style="display:block;margin-top:8px;text-align:left;line-height:1.5">
+<b>DEPOSIT:</b> Deriv App > Cashier > Deposit > Mpesa > Weka Amount > Lipa<br>
+<b>WITHDRAW:</b> Cashier > Withdrawal > Mpesa > Weka Number 07... > Amount > Withdraw<br>
+<b>Min:</b> $5 Deposit, $10 Withdraw - Inafika 5min - 2hrs
+</small>
 </div>
 
 <div class="card">
-<h4 style="color:#00ff88;text-align:center">🔴 LIVE TRADE HISTORY</h4>
-<table><tr><th>Lvl</th><th>Stake</th><th>Digit/Target</th><th>Result</th><th>Profit</th></tr>
-<tbody id="history"><tr><td colspan="5">Waiting for trades...</td></tr></tbody>
-</table>
+<table><tr><th>Lvl</th><th>Stake</th><th>Type</th><th>Result</th></tr><tbody id="hist"><tr><td colspan="4">No trades yet</td></tr></tbody></table>
 </div>
 
 <script>
-let RUN=false, BAL=0, PROF=0, LVL=0, BASE=0.35, CUR=0.35, W=0, L=0;
-const MAX=4, MULT=2.1;
-let ws;
-
-function startPro(){
- if(!token.value){alert('Weka API Token!'); return;}
- BASE=parseFloat(stakeType.value); CUR=BASE; RUN=true;
- status.innerText='Connecting to Deriv...';
- connectDeriv();
-}
-function stopPro(){RUN=false; if(ws)ws.close(); status.innerText='Stopped';}
-
-function connectDeriv(){
+let ws=null,RUN=false,BAL=0,PROF=0,LVL=0,BASE=0.35,CUR=0.35,W=0,L=0; const MAX=4,FACTOR=2.1;
+function log(t){document.getElementById('log').innerText=t;}
+function startBot(){
+ let tk=document.getElementById('token').value.trim();
+ if(!tk || tk.length<15){alert('Weka Deriv Token halisi! Nenda app.deriv.com > Settings > API Token > Create (a1-...)');return;}
+ if(tk.startsWith('pat_')){alert('Hii ni GitHub token! Weka token ya Deriv a1-...');return;}
+ BASE=parseFloat(document.getElementById('baseStake').value); CUR=BASE; RUN=true; log('Connecting...');
  ws=new WebSocket('wss://ws.binaryws.com/websockets/v3?app_id=1089');
- ws.onopen=()=>{ ws.send(JSON.stringify({authorize:token.value})); };
- ws.onmessage=(msg)=>{
-  let d=JSON.parse(msg.data);
-  if(d.authorize){ login.innerText=d.authorize.logininfo.loginid; acc.innerText='Real | '+d.authorize.logininfo.currency; BAL=d.authorize.balance; currBal.innerText='$'+BAL.toFixed(2); ws.send(JSON.stringify({ticks:mkt.value})); status.innerText='Live Trading...'; doTrade(); }
-  if(d.tick){ let lastDigit=(d.tick.quote+'').slice(-1); digit.innerText=lastDigit; price.innerText=d.tick.quote; }
-  if(d.buy){ /* contract bought */ }
-  if(d.proposal_open_contract){ if(d.proposal_open_contract.is_sold){ let p=d.proposal_open_contract.profit; handleResult(p); }}
+ ws.onopen=()=>{ws.send(JSON.stringify({authorize:tk}));};
+ ws.onmessage=(e)=>{
+  let d=JSON.parse(e.data);
+  if(d.error){log('ERROR: '+d.error.message); alert(d.error.message); RUN=false; return;}
+  if(d.authorize){document.getElementById('acc').innerText=d.authorize.logininfo.loginid; document.getElementById('acc2').innerText=d.authorize.logininfo.currency; ws.send(JSON.stringify({balance:1,subscribe:1})); ws.send(JSON.stringify({ticks:document.getElementById('market').value,subscribe:1})); log('✅ Connected!');}
+  if(d.balance){BAL=d.balance.balance; document.getElementById('bal').innerText='$'+BAL.toFixed(2); if(RUN && LVL==0 && W+L==0) setTimeout(trade,1500);}
+  if(d.tick){document.getElementById('price').innerText=d.tick.quote; let ld=(d.tick.quote+'').slice(-1); document.getElementById('digit').innerText=ld; document.getElementById('lastDig').innerText=ld; document.getElementById('mktTxt').innerText=d.tick.symbol;}
+  if(d.proposal){ws.send(JSON.stringify({buy:1,price:d.proposal.ask_price,parameters:{amount:CUR,basis:'stake',contract_type:pendingType=='MATCHES'?'DIGITMATCH':'DIGITDIFF',symbol:document.getElementById('market').value,duration:1,duration_unit:'t',barrier:pendingBar}}));}
+  if(d.buy){log('Trade placed...'); ws.send(JSON.stringify({proposal_open_contract:1,contract_id:d.buy.contract_id,subscribe:1}));}
+  if(d.proposal_open_contract && d.proposal_open_contract.is_sold){finish(d.proposal_open_contract.profit);}
  };
+ ws.onerror=()=>log('Connection error');
 }
-
-function doTrade(){
- if(!RUN) return;
- let target=Math.floor(Math.random()*10);
- let type=Math.random()>0.5?'MATCHES':'DIFFERS';
- let stake=CUR;
- // Real trade via API
- if(ws && ws.readyState==1){
-   ws.send(JSON.stringify({proposal:1, amount:stake, basis:'stake', contract_type: type=='MATCHES'?'DIGITMATCH':'DIGITDIFF', symbol:mkt.value, duration:1, duration_unit:'t', barrier:target.toString()}));
-   setTimeout(()=>{
-     ws.send(JSON.stringify({buy:1, price:stake, parameters:{amount:stake, basis:'stake', contract_type: type=='MATCHES'?'DIGITMATCH':'DIGITDIFF', symbol:mkt.value, duration:1, duration_unit:'t', barrier:target.toString()}}));
-   },300);
- }
- // Simulate result for display (replace with real profit from API)
- setTimeout(()=>{
-   let win=Math.random()>0.45;
-   let profit=win ? stake*0.95 : -stake;
-   // Real profit will come from proposal_open_contract
-   handleResult(profit, type, target, stake);
- },2000);
+function stopBot(){RUN=false; if(ws)ws.close(); log('Stopped');}
+let pendingType='',pendingBar=''; 
+function trade(){
+ if(!RUN || !ws || ws.readyState!=1) return;
+ pendingType=Math.random()>0.5?'MATCHES':'DIFFERS'; pendingBar=Math.floor(Math.random()*10).toString();
+ log('Buying '+pendingType+' '+pendingBar+' $'+CUR.toFixed(2));
+ ws.send(JSON.stringify({proposal:1,amount:CUR,basis:'stake',contract_type:pendingType=='MATCHES'?'DIGITMATCH':'DIGITDIFF',symbol:document.getElementById('market').value,duration:1,duration_unit:'t',barrier:pendingBar}));
 }
-
-function handleResult(profit, type, target, stake){
- let isWin=profit>0;
- if(isWin){ W++; PROF+=profit; LVL=0; CUR=BASE; }
- else{ L++; PROF+=profit; LVL++; if(LVL>=MAX){ LVL=0; CUR=BASE; } else{ CUR=CUR*MULT; }}
- let lastD=digit.innerText;
- tProfit.innerText='$'+PROF.toFixed(2);
- currBal.innerText='$'+(BAL+PROF).toFixed(2);
- todayP.innerText='$'+PROF.toFixed(2);
- nextStake.innerText='$'+CUR.toFixed(2);
- lvlNow.innerText=LVL+'/'+MAX;
- wins.innerText=W+'W / '+L+'L';
- wr.innerText=(W+L>0?Math.round(W/(W+L)*100):0)+'%';
- let row=`<tr><td>${LVL}</td><td>$${stake?stake.toFixed(2):CUR.toFixed(2)}</td><td>${lastD} vs ${target} (${type||'-'})</td><td class="${isWin?'win':'loss'}">${isWin?'WIN':'LOSS'}</td><td class="${isWin?'win':'loss'}">${profit>0?'+':''}$${profit.toFixed(2)}</td></tr>`;
- history.innerHTML=row+history.innerHTML;
- if(RUN) setTimeout(doTrade,3000);
+function finish(profit){
+ let win=profit>0; if(win){W++; PROF+=profit; LVL=0; CUR=BASE;} else {L++; PROF+=profit; LVL++; if(LVL>=MAX){LVL=0; CUR=BASE;} else CUR=CUR*FACTOR;}
+ document.getElementById('pnl').innerText='Profit: $'+PROF.toFixed(2); document.getElementById('nextStake').innerText='$'+CUR.toFixed(2); document.getElementById('lvl').innerText=LVL+'/'+MAX; document.getElementById('wr').innerText=(W+L>0?Math.round(W/(W+L)*100):0)+'% '+W+'W/'+L+'L';
+ let row='<tr><td>'+LVL+'</td><td>$'+CUR.toFixed(2)+'</td><td>'+pendingType+' '+pendingBar+'</td><td class="'+(win?'win':'loss')+'">'+(win?'WIN +$'+profit.toFixed(2):'LOSS $'+profit.toFixed(2))+'</td></tr>';
+ document.getElementById('hist').innerHTML=row+document.getElementById('hist').innerHTML;
+ if(RUN) setTimeout(trade,2500);
 }
 </script>
 </body>
