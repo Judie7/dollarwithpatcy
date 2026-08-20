@@ -1,120 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MEGAWAVE PRO - Patcy</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box} body{background:#06060a;color:#fff;font-family:Arial;padding:10px}
-.h{background:linear-gradient(90deg,#ffcc00,#00ff88);color:#000;padding:18px;border-radius:15px;text-align:center;font-weight:900;font-size:22px}
-.card{background:#14141f;border:1px solid #333;border-radius:14px;padding:14px;margin:10px 0}
-.bal{font-size:32px;color:#00ff88;font-weight:900} .live{font-size:65px;text-align:center;font-weight:900;color:#ffcc00}
-input,select{width:100%;padding:12px;margin:5px 0;border-radius:10px;background:#1f1f2d;color:#fff;border:1px solid #444}
-button{width:100%;padding:14px;border-radius:12px;border:none;font-weight:900;margin:5px 0;font-size:16px}
-.start{background:#00ff88;color:#000} .stop{background:#ff2340;color:#fff}
-.mpesabtn{background:#00a651;color:#fff} .depobtn{background:#ffcc00;color:#000}
-table{width:100%;font-size:11px} th{color:#ffcc00} td{padding:6px;text-align:center;border-bottom:1px solid #222}
-.win{color:#00ff88} .loss{color:#ff4455} small{color:#888}
-</style>
-</head>
-<body>
-<div class="h">🌊 MEGAWAVE PRO - PATCY x2.1</div>
-
-<div class="card">
-<div style="display:flex;justify-content:space-between">
-<div><small>ACCOUNT</small><br><b id="acc">Not Connected</b><br><small id="acc2">Weka token</small></div>
-<div style="text-align:right"><small>BALANCE</small><div class="bal" id="bal">$0.00</div><small id="pnl">Profit: $0.00</small></div>
-</div>
-</div>
-
-<div class="card">
-<div style="display:flex;justify-content:space-around;text-align:center">
-<div><b id="nextStake" style="color:#ffcc00">$0.35</b><br><small>Next Stake</small></div>
-<div><b id="lvl">0/4</b><br><small>Level</small></div>
-<div><b id="wr">0% 0W/0L</b><br><small>Stats</small></div>
-</div>
-<div class="live" id="digit">-</div>
-<div style="text-align:center"><small>Market: <span id="mktTxt">-</span> | Price: <span id="price">-</span> | Last Digit: <span id="lastDig">-</span></small><br><small id="log" style="color:#00ff88">Ready</small></div>
-</div>
-
-<div class="card">
-<input id="token" placeholder="Weka Deriv API Token a1-...">
-<select id="market">
-<option value="R_10">Volatility 10 Index</option>
-<option value="R_25">Volatility 25 Index</option>
-<option value="R_50">Volatility 50 Index</option>
-<option value="R_75">Volatility 75 Index</option>
-<option value="R_100" selected>Volatility 100 Index</option>
-<option value="R_10_1s">Volatility 10 (1s)</option>
-<option value="R_25_1s">Volatility 25 (1s)</option>
-<option value="R_50_1s">Volatility 50 (1s)</option>
-<option value="R_75_1s">Volatility 75 (1s)</option>
-<option value="R_100_1s">Volatility 100 (1s)</option>
-<option value="1HZ10V">Volatility 10 - 1s</option>
-<option value="1HZ25V">Volatility 25 - 1s</option>
-<option value="1HZ50V">Volatility 50 - 1s</option>
-<option value="1HZ75V">Volatility 75 - 1s</option>
-<option value="1HZ100V">Volatility 100 - 1s</option>
-</select>
-<select id="baseStake"><option value="0.35">Base $0.35 (SAFE)</option><option value="0.5">$0.50</option><option value="1">$1</option><option value="2">$2 (RISKY)</option></select>
-<button class="start" onclick="startBot()">▶️ START MEGAWAVE x2.1</button>
-<button class="stop" onclick="stopBot()">⏸️ STOP</button>
-</div>
-
-<div class="card" style="border:2px solid #00a651">
-<h4 style="color:#00a651;text-align:center">🇰🇪 MPESA DEPOSIT & WITHDRAWAL</h4>
-<div style="display:flex;gap:6px;margin-top:8px">
-<button class="mpesabtn" onclick="window.open('https://app.deriv.com/cashier/deposit','_blank')">💰 DEPOSIT MPESA</button>
-<button class="depobtn" onclick="window.open('https://app.deriv.com/cashier/withdrawal','_blank')">💸 WITHDRAW MPESA</button>
-</div>
-<small style="display:block;margin-top:8px;text-align:left;line-height:1.5">
-<b>DEPOSIT:</b> Deriv App > Cashier > Deposit > Mpesa > Weka Amount > Lipa<br>
-<b>WITHDRAW:</b> Cashier > Withdrawal > Mpesa > Weka Number 07... > Amount > Withdraw<br>
-<b>Min:</b> $5 Deposit, $10 Withdraw - Inafika 5min - 2hrs
-</small>
-</div>
-
-<div class="card">
-<table><tr><th>Lvl</th><th>Stake</th><th>Type</th><th>Result</th></tr><tbody id="hist"><tr><td colspan="4">No trades yet</td></tr></tbody></table>
-</div>
-
+<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>DOLLARS WITH PATCY</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#06060a;color:#fff;font-family:Arial;padding:10px}.h{background:linear-gradient(90deg,#ffcc00,#00ff88);color:#000;padding:18px;border-radius:15px;text-align:center;font-weight:900;font-size:20px}.card{background:#14141f;border:1px solid #333;border-radius:14px;padding:14px;margin:10px 0}.bal{font-size:32px;color:#00ff88;font-weight:900}.live{font-size:60px;text-align:center;font-weight:900;color:#ffcc00}input,select{width:100%;padding:12px;margin:5px 0;border-radius:10px;background:#1f1f2d;color:#fff;border:1px solid #444}button{width:100%;padding:14px;border-radius:12px;border:none;font-weight:900;margin:5px 0}.start{background:#00ff88;color:#000}.stop{background:#ff2340;color:#fff}</style></head><body>
+<div class="h">💵 DOLLARS WITH PATCY - x2.1</div>
+<div class="card"><b id="acc">DEMO MODE</b> - <span id="bal" style="color:#00ff88;font-weight:900">$1000.00</span><br><small id="pnl">Profit: $0.00</small> | <b id="nextStake" style="color:#ffcc00">$0.35</b> | <span id="lvl">0/4</span> | <span id="wr">0%</span></div>
+<div class="card"><div id="digit" style="font-size:60px;text-align:center;color:#ffcc00;font-weight:900">-</div><div style="text-align:center"><small id="log" style="color:#00ff88">Ready - Press START - No Token Needed</small></div></div>
+<div class="card"><select id="baseStake"><option value="0.35">Base $0.35</option><option value="0.5">$0.50</option><option value="1">$1</option></select><button class="start" onclick="startBot()">▶️ START DOLLARS WITH PATCY x2.1</button><button class="stop" onclick="stopBot()">⏸️ STOP</button></div>
+<div class="card"><table style="width:100%;font-size:11px"><tr><th>Lvl</th><th>Stake</th><th>Type</th><th>Result</th></tr><tbody id="hist"><tr><td colspan="4">Press START</td></tr></tbody></table></div>
 <script>
-let ws=null,RUN=false,BAL=0,PROF=0,LVL=0,BASE=0.35,CUR=0.35,W=0,L=0; const MAX=4,FACTOR=2.1;
-function log(t){document.getElementById('log').innerText=t;}
-function startBot(){
- let tk=document.getElementById('token').value.trim();
- if(!tk || tk.length<15){alert('Weka Deriv Token halisi! Nenda app.deriv.com > Settings > API Token > Create (a1-...)');return;}
- if(tk.startsWith('pat_')){alert('Hii ni GitHub token! Weka token ya Deriv a1-...');return;}
- BASE=parseFloat(document.getElementById('baseStake').value); CUR=BASE; RUN=true; log('Connecting...');
- ws=new WebSocket('wss://ws.binaryws.com/websockets/v3?app_id=1089');
- ws.onopen=()=>{ws.send(JSON.stringify({authorize:tk}));};
- ws.onmessage=(e)=>{
-  let d=JSON.parse(e.data);
-  if(d.error){log('ERROR: '+d.error.message); alert(d.error.message); RUN=false; return;}
-  if(d.authorize){document.getElementById('acc').innerText=d.authorize.logininfo.loginid; document.getElementById('acc2').innerText=d.authorize.logininfo.currency; ws.send(JSON.stringify({balance:1,subscribe:1})); ws.send(JSON.stringify({ticks:document.getElementById('market').value,subscribe:1})); log('✅ Connected!');}
-  if(d.balance){BAL=d.balance.balance; document.getElementById('bal').innerText='$'+BAL.toFixed(2); if(RUN && LVL==0 && W+L==0) setTimeout(trade,1500);}
-  if(d.tick){document.getElementById('price').innerText=d.tick.quote; let ld=(d.tick.quote+'').slice(-1); document.getElementById('digit').innerText=ld; document.getElementById('lastDig').innerText=ld; document.getElementById('mktTxt').innerText=d.tick.symbol;}
-  if(d.proposal){ws.send(JSON.stringify({buy:1,price:d.proposal.ask_price,parameters:{amount:CUR,basis:'stake',contract_type:pendingType=='MATCHES'?'DIGITMATCH':'DIGITDIFF',symbol:document.getElementById('market').value,duration:1,duration_unit:'t',barrier:pendingBar}}));}
-  if(d.buy){log('Trade placed...'); ws.send(JSON.stringify({proposal_open_contract:1,contract_id:d.buy.contract_id,subscribe:1}));}
-  if(d.proposal_open_contract && d.proposal_open_contract.is_sold){finish(d.proposal_open_contract.profit);}
- };
- ws.onerror=()=>log('Connection error');
-}
-function stopBot(){RUN=false; if(ws)ws.close(); log('Stopped');}
-let pendingType='',pendingBar=''; 
-function trade(){
- if(!RUN || !ws || ws.readyState!=1) return;
- pendingType=Math.random()>0.5?'MATCHES':'DIFFERS'; pendingBar=Math.floor(Math.random()*10).toString();
- log('Buying '+pendingType+' '+pendingBar+' $'+CUR.toFixed(2));
- ws.send(JSON.stringify({proposal:1,amount:CUR,basis:'stake',contract_type:pendingType=='MATCHES'?'DIGITMATCH':'DIGITDIFF',symbol:document.getElementById('market').value,duration:1,duration_unit:'t',barrier:pendingBar}));
-}
-function finish(profit){
- let win=profit>0; if(win){W++; PROF+=profit; LVL=0; CUR=BASE;} else {L++; PROF+=profit; LVL++; if(LVL>=MAX){LVL=0; CUR=BASE;} else CUR=CUR*FACTOR;}
- document.getElementById('pnl').innerText='Profit: $'+PROF.toFixed(2); document.getElementById('nextStake').innerText='$'+CUR.toFixed(2); document.getElementById('lvl').innerText=LVL+'/'+MAX; document.getElementById('wr').innerText=(W+L>0?Math.round(W/(W+L)*100):0)+'% '+W+'W/'+L+'L';
- let row='<tr><td>'+LVL+'</td><td>$'+CUR.toFixed(2)+'</td><td>'+pendingType+' '+pendingBar+'</td><td class="'+(win?'win':'loss')+'">'+(win?'WIN +$'+profit.toFixed(2):'LOSS $'+profit.toFixed(2))+'</td></tr>';
- document.getElementById('hist').innerHTML=row+document.getElementById('hist').innerHTML;
- if(RUN) setTimeout(trade,2500);
-}
-</script>
-</body>
-</html>
+let RUN=false,BAL=1000,PROF=0,LVL=0,BASE=0.35,CUR=0.35,W=0,L=0;const MAX=4;let I=null;function log(t){document.getElementById('log').innerText=t}
+function startBot(){BASE=parseFloat(document.getElementById('baseStake').value);CUR=BASE;RUN=true;log('Running x2.1...');I=setInterval(()=>{if(RUN)document.getElementById('digit').innerText=Math.floor(Math.random()*10)},800);setTimeout(trade,1000)}
+function stopBot(){RUN=false;clearInterval(I);log('Stopped')}
+let PT='',PB='';
+function trade(){if(!RUN)return;PT=Math.random()>0.5?'MATCHES':'DIFFERS';PB=Math.floor(Math.random()*10).toString();log(PT+' '+PB+' $'+CUR.toFixed(2));let win=Math.random()>0.42;setTimeout(()=>finish(win?CUR*0.9:-CUR),1200)}
+function finish(p){let win=p>0;if(win){W++;PROF+=p;LVL=0;CUR=BASE}else{L++;PROF+=p;LVL++;if(LVL>=MAX){LVL=0;CUR=BASE}else{CUR=Math.round(CUR*2.1*100)/100}}document.getElementById('pnl').innerText='Profit:$'+PROF.toFixed(2);document.getElementById('nextStake').innerText='$'+CUR.toFixed(2);document.getElementById('lvl').innerText=LVL+'/'+MAX;document.getElementById('wr').innerText=(W+L>0?Math.round(W/(W+L)*100):0)+'%';BAL+=p;document.getElementById('bal').innerText='$'+BAL.toFixed(2);let r='<tr><td>'+LVL+'</td><td>$'+CUR.toFixed(2)+'</td><td>'+PT+' '+PB+'</td><td style="color:'+(win?'#00ff88':'#ff4444')+'">'+(win?'WIN':'LOSS')+' $'+p.toFixed(2)+'</td></tr>';document.getElementById('hist').innerHTML=r+document.getElementById('hist').innerHTML;if(RUN)setTimeout(trade,2500)}
+</script></body></html>
