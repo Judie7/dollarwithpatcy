@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>DOLLARSPATCY - MEGAWAVE</title><script src='https://cdn.tailwindcss.com'></script></head>
+<body class='bg-[#0f0f0f] text-white min-h-screen p-2'>
+<div class='max-w-md mx-auto'>
+<h1 class='text-2xl font-black text-center py-3'>DOLLAR<span class='text-blue-500'>SPATCY</span></h1>
+<div class='bg-[#1a1a1a] rounded-xl p-4 mb-3'>
+<input id='token' type='password' placeholder='Deriv API Token (demo kwanza)' class='w-full bg-[#2a2a2a] p-3 rounded-lg text-sm'>
+<div class='grid grid-cols-2 gap-2 mt-3'>
+<select id='symbol' class='bg-[#2a2a2a] p-2 rounded text-sm'><option value='R_100'>Volatility 100</option><option value='1HZ100V'>Volatility 100 (1s)</option><option value='R_50'>Volatility 50</option><option value='1HZ10V'>Volatility 10 (1s)</option></select>
+<select id='type' class='bg-[#2a2a2a] p-2 rounded text-sm'><option value='DIGITMATCH'>Matches</option><option value='DIGITDIFF'>Differs</option><option value='DIGITEVEN'>Even</option><option value='DIGITODD'>Odd</option></select>
+</div>
+<div class='grid grid-cols-2 gap-2 mt-2'>
+<select id='digit' class='bg-[#2a2a2a] p-2 rounded text-sm'><option>0</option><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select>
+<input id='stake' type='number' value='3' class='bg-[#2a2a2a] p-2 rounded text-sm'>
+</div>
+<div class='grid grid-cols-2 gap-2 mt-3'>
+<button onclick='startBot()' class='bg-blue-600 py-3 rounded-xl font-bold'>START</button>
+<button onclick='stopBot()' class='bg-red-600 py-3 rounded-xl font-bold'>STOP</button>
+</div>
+<p id='status' class='text-xs text-center mt-2 text-gray-400'>Ready - weka token kwanza</p>
+</div>
+<div class='bg-[#1a1a1a] rounded-xl p-4'>
+<div class='flex justify-between text-sm'><span>Total Profit</span><span id='totalProfit' class='text-green-400 font-bold'>$0.00</span></div>
+<div id='history' class='mt-3 space-y-2 max-h-96 overflow-auto text-xs'></div>
+</div>
+</div>
+<script>
+let ws,running=false,total=0;
+function log(s){document.getElementById('status').innerText=s}
+function startBot(){
+ let token=document.getElementById('token').value;
+ if(!token){alert('Weka Deriv Token kwanza - toka app.deriv.com > Settings > API Token');return}
+ ws=new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
+ ws.onopen=()=>{ws.send(JSON.stringify({authorize:token})); log('Connecting...')};
+ ws.onmessage=e=>{
+  let d=JSON.parse(e.data);
+  if(d.error){log(d.error.message);return}
+  if(d.msg_type==='authorize'){running=true;log('Running - '+document.getElementById('symbol').value); trade()}
+  if(d.msg_type==='buy'){ws.send(JSON.stringify({proposal_open_contract:1, contract_id:d.buy.contract_id, subscribe:1}))}
+  if(d.msg_type==='proposal_open_contract' && d.proposal_open_contract.is_sold){
+   let p=d.proposal_open_contract.profit;
+   total+=p;
+   document.getElementById('totalProfit').innerText='$'+total.toFixed(2);
+   let row=document.createElement('div');
+   row.className='bg-[#2a2a2a] p-2 rounded flex justify-between';
+   row.innerHTML=`<span>${document.getElementById('symbol').value} | ${document.getElementById('type').value.includes('MATCH')?'MATCH':'DIFF'} ${document.getElementById('digit').value} | $${d.proposal_open_contract.buy_price}</span><span style='color:${p>=0?'#22c55e':'#ef4444'}'>${p>=0?'+':''}${p.toFixed(2)}</span>`;
+   document.getElementById('history').prepend(row);
+   if(running) setTimeout(trade,1500);
+  }
+ };
+ ws.onerror=()=>log('Error - token si sahihi');
+}
+function trade(){
+ if(!running) return;
+ let stake=parseFloat(document.getElementById('stake').value);
+ let symbol=document.getElementById('symbol').value;
+ let type=document.getElementById('type').value;
+ let digit=document.getElementById('digit').value;
+ let params={amount:stake, basis:'stake', contract_type:type, currency:'USD', duration:1, duration_unit:'t', symbol:symbol};
+ if(type==='DIGITMATCH' || type==='DIGITDIFF') params.barrier=digit;
+ ws.send(JSON.stringify({buy:1, price:stake, parameters:params}));
+ log('Trading... $'+stake);
+}
+function stopBot(){running=false; if(ws) ws.close(); log('Stopped')}
+</script></body></html>
