@@ -1,43 +1,48 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset='UTF-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0'>
-<title>DOLLARS WITH PATCY</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0e1a;color:#fff;font-family:Arial;padding:10px}
-.top{background:linear-gradient(90deg,#ffcc00,#ff8800);color:#000;padding:14px;border-radius:14px;text-align:center;font-weight:900}
-.card{background:#151c2c;border:1px solid #ffcc00;border-radius:12px;padding:12px;margin:8px 0}
-.bal{color:#00ff88;font-weight:900;font-size:22px}
-.digit{font-size:64px;text-align:center;font-weight:900;color:#ffcc00}
-button{padding:12px;border:none;border-radius:10px;font-weight:900;margin:3px;flex:1}
-input{width:100%;padding:10px;border-radius:8px;background:#1f2937;color:#fff;border:1px solid #374151;margin:4px 0}
-</style>
-</head>
-<body>
-<div class="top">💰 DOLLARS WITH PATCY - FIXED ENGINE</div>
-<div class="card" style="display:flex;justify-content:space-between"><div><b style="color:#ffcc00" id="mode">ENGINE READY</b><br><small id="profit">Profit: $0.00</small><br><small id="acc">DEMO $1000</small></div><div style="text-align:right"><div class="bal" id="bal">$1000.00</div><small id="wl">0W/0L</small></div></div>
-<div class="card"><div id="digit" class="digit">5</div><div style="text-align:center"><small id="status" style="color:#00ff88">LIVE</small></div></div>
+<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>DOLLAR WITH PATCY REAL</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0a0e1a;color:#fff;font-family:Arial;padding:10px}.top{background:linear-gradient(90deg,#ffcc00,#ff8800);color:#000;padding:12px;border-radius:12px;text-align:center;font-weight:900}.card{background:#151c2c;border:1px solid #ffcc00;border-radius:12px;padding:12px;margin:8px 0}.bal{color:#00ff88;font-weight:900;font-size:22px}.digit{font-size:64px;text-align:center;font-weight:900;color:#ffcc00}button{padding:12px;border:none;border-radius:10px;font-weight:900;margin:3px;flex:1}input{width:100%;padding:10px;border-radius:8px;background:#1f2937;color:#fff;border:1px solid #444;margin:4px 0}</style></head><body>
+<div class="top">💰 DOLLARS WITH PATCY - REAL ACCOUNT</div>
+<div class="card"><input id="token" placeholder="Weka Deriv API Token hapa (a1b2c3...)"><button onclick="connectReal()" style="background:#00ff88;color:#000;width:100%">🔌 CONNECT REAL ACCOUNT</button><div style="margin-top:8px"><b id="mode" style="color:#ffcc00">NOT CONNECTED</b> - <span id="acc">No account</span><br><span class="bal" id="bal">Balance: --</span> - <span id="profit">Profit $0</span> <span id="wl">0W/0L</span></div></div>
+<div class="card"><div id="digit" class="digit">-</div><div style="text-align:center" id="status">Connect token kwanza</div></div>
 <div class="card">
-<input id="stake" type="number" value="10">
-<div style="display:flex"><button onclick="setS(1)" style="background:#fff;color:#000">$1</button><button onclick="setS(5)" style="background:#fff;color:#000">$5</button><button onclick="setS(10)" style="background:#ffcc00;color:#000">$10=$400</button></div>
-<div style="display:flex;margin-top:8px"><button onclick="startAI()" style="background:#7c3aed;color:#fff">AI BOT TRADE</button><button onclick="startManual()" style="background:#ffcc00;color:#000">MANUAL BOT</button></div>
-<div style="display:flex"><button onclick="stopBot()" style="background:#ef4444;color:#fff;width:100%">STOP</button></div>
-<div id="manual" style="display:none;margin-top:10px"><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
-<button onclick="trade(0)" style="background:#222;color:#fff">0</button><button onclick="trade(1)" style="background:#222;color:#fff">1</button><button onclick="trade(2)" style="background:#222;color:#fff">2</button><button onclick="trade(3)" style="background:#222;color:#fff">3</button><button onclick="trade(4)" style="background:#222;color:#fff">4</button><button onclick="trade(5)" style="background:#222;color:#fff">5</button><button onclick="trade(6)" style="background:#222;color:#fff">6</button><button onclick="trade(7)" style="background:#222;color:#fff">7</button><button onclick="trade(8)" style="background:#222;color:#fff">8</button><button onclick="trade(9)" style="background:#222;color:#fff">9</button>
-</div></div>
+<input id="stake" type="number" value="10"><div style="display:flex"><button onclick="setS(1)" style="background:#fff;color:#000">$1</button><button onclick="setS(10)" style="background:#ffcc00;color:#000">$10 REAL=$400</button></div>
+<div style="display:flex;margin-top:8px"><button onclick="startAI()" style="background:#7c3aed;color:#fff">🤖 AI REAL TRADE</button><button onclick="stopBot()" style="background:#ef4444;color:#fff">🛑 STOP</button></div>
 </div>
-<div class="card"><div id="hist">No trades yet</div></div>
+<div class="card" id="hist">No trades</div>
 <script>
-let RUN=false,BAL=1000,PROF=0,W=0,L=0,last=5,t=null;
-function setS(v){document.getElementById('stake').value=v}
-function startLive(){clearInterval(t);t=setInterval(()=>{last=Math.floor(Math.random()*10);document.getElementById('digit').innerText=last},700)}
-function trade(d){if(!RUN){alert('Start BOT first');return;}let s=parseFloat(document.getElementById('stake').value)||10;let win=Math.random()<0.55;let p=win?s*40:-s;BAL+=p;PROF+=p;if(win)W++;else L++;document.getElementById('bal').innerText='$'+BAL.toFixed(2);document.getElementById('profit').innerText='Profit: $'+PROF.toFixed(2);document.getElementById('wl').innerText=W+'W/'+L+'L';let c=win?'#00ff88':'#ef4444';document.getElementById('hist').innerHTML=`<div style="display:flex;justify-content:space-between;padding:6px;border-bottom:1px solid #222"><span>MATCH ${d}</span><span>$${s}</span><span style="color:${c}">${win?'WIN $'+p:'LOSS'}</span></div>`+document.getElementById('hist').innerHTML;document.getElementById('status').innerText=(win?'WIN ':'LOSS ')+d}
-function startAI(){RUN=true;document.getElementById('mode').innerText='AI RUNNING';document.getElementById('manual').style.display='none';let l=()=>{if(!RUN)return;trade(last);setTimeout(l,2000)};l()}
-function startManual(){RUN=true;document.getElementById('mode').innerText='MANUAL READY';document.getElementById('manual').style.display='block'}
-function stopBot(){RUN=false}
-startLive();
+let ws=null,RUN=false,BAL=0,PROF=0,W=0,L=0,last=5,tradeInt=null,liveInt=null,token='',isReal=false;
+function setS(v){document.getElementById('stake').value=v;}
+function connectReal(){
+token=document.getElementById('token').value.trim();
+if(!token){alert('Weka token!');return;}
+if(ws)ws.close();
+ws=new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
+ws.onopen=()=>{ws.send(JSON.stringify({authorize:token})); document.getElementById('status').innerText='Connecting...';};
+ws.onmessage=(e)=>{
+let d=JSON.parse(e.data);
+if(d.msg_type=='authorize'){BAL=d.authorize.balance; isReal=d.authorize.is_virtual==0; document.getElementById('bal').innerText='Balance: $'+BAL+' '+(isReal?'REAL':'DEMO'); document.getElementById('acc').innerText=d.authorize.email+' '+(isReal?'REAL':'DEMO'); document.getElementById('mode').innerText='CONNECTED'; document.getElementById('status').innerText='● CONNECTED '+ (isReal?'REAL MONEY':'DEMO'); startLiveFeed(); }
+if(d.msg_type=='tick'){last=parseInt(d.tick.quote.toString().slice(-1)); document.getElementById('digit').innerText=last; }
+if(d.msg_type=='buy'){ if(d.buy){} }
+if(d.msg_type=='proposal_open_contract'){ if(d.proposal_open_contract.is_sold){ let profit=parseFloat(d.proposal_open_contract.profit); BAL+=profit; PROF+=profit; let win=profit>0; if(win)W++;else L++; document.getElementById('bal').innerText='Balance: $'+BAL.toFixed(2); document.getElementById('profit').innerText='Profit $'+PROF.toFixed(2); document.getElementById('wl').innerText=W+'W/'+L+'L'; let c=win?'#00ff88':'#ef4444'; document.getElementById('hist').innerHTML='<div style="display:flex;justify-content:space-between;padding:6px;border-bottom:1px solid #222;color:'+c+'"><span>'+ (win?'WIN':'LOSS')+'</span><span>$'+profit.toFixed(2)+'</span></div>'+document.getElementById('hist').innerHTML; document.getElementById('status').innerText=(win?'WIN $'+profit.toFixed(2):'LOSS $'+profit.toFixed(2))+' - Digit '+last; } }
+};
+ws.onerror=()=>{document.getElementById('status').innerText='Token sio sahihi!';};
+}
+function startLiveFeed(){ if(liveInt)clearInterval(liveInt); ws.send(JSON.stringify({ticks:'R_100',subscribe:1})); }
+function doRealTrade(prediction){
+if(!ws || !isReal && !confirm('Hii ni DEMO, endelea?')){}
+let stake=parseFloat(document.getElementById('stake').value)||10;
+ws.send(JSON.stringify({buy:1,price:stake,parameters:{amount:stake,basis:'stake',contract_type:'DIGITMATCH',currency:'USD',duration:1,duration_unit:'t',symbol:'R_100',barrier:prediction.toString()}}));
+}
+function startAI(){
+if(!ws){alert('Connect Real Account kwanza!');return;}
+if(RUN)return;
+RUN=true;
+document.getElementById('mode').innerText='🤖 REAL RUNNING';
+if(tradeInt)clearInterval(tradeInt);
+tradeInt=setInterval(()=>{
+if(!RUN){clearInterval(tradeInt);return;}
+doRealTrade(last);
+},3000);
+}
+function stopBot(){RUN=false; if(tradeInt){clearInterval(tradeInt);tradeInt=null;} document.getElementById('mode').innerText='🛑 STOPPED'; document.getElementById('status').innerText='STOPPED - Profit $'+PROF.toFixed(2); }
 </script>
-</body>
-</html>
+</body></html>
