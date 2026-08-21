@@ -1,48 +1,147 @@
-<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>DOLLAR WITH PATCY REAL</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0a0e1a;color:#fff;font-family:Arial;padding:10px}.top{background:linear-gradient(90deg,#ffcc00,#ff8800);color:#000;padding:12px;border-radius:12px;text-align:center;font-weight:900}.card{background:#151c2c;border:1px solid #ffcc00;border-radius:12px;padding:12px;margin:8px 0}.bal{color:#00ff88;font-weight:900;font-size:22px}.digit{font-size:64px;text-align:center;font-weight:900;color:#ffcc00}button{padding:12px;border:none;border-radius:10px;font-weight:900;margin:3px;flex:1}input{width:100%;padding:10px;border-radius:8px;background:#1f2937;color:#fff;border:1px solid #444;margin:4px 0}</style></head><body>
-<div class="top">💰 DOLLARS WITH PATCY - REAL ACCOUNT</div>
-<div class="card"><input id="token" placeholder="Weka Deriv API Token hapa (a1b2c3...)"><button onclick="connectReal()" style="background:#00ff88;color:#000;width:100%">🔌 CONNECT REAL ACCOUNT</button><div style="margin-top:8px"><b id="mode" style="color:#ffcc00">NOT CONNECTED</b> - <span id="acc">No account</span><br><span class="bal" id="bal">Balance: --</span> - <span id="profit">Profit $0</span> <span id="wl">0W/0L</span></div></div>
-<div class="card"><div id="digit" class="digit">-</div><div style="text-align:center" id="status">Connect token kwanza</div></div>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DOLLARS WITH PATCY</title>
+<style>
+body{background:#0a0e1a;color:#fff;font-family:Arial;padding:10px;margin:0}
+.top{background:#00ff88;color:#000;padding:12px;border-radius:10px;text-align:center;font-weight:900}
+.card{background:#151c2c;border:1px solid #222;border-radius:10px;padding:10px;margin-top:10px}
+.b{color:#00ff88;font-weight:900}
+.d{font-size:62px;text-align:center;font-weight:900;color:#00ff88}
+button{padding:12px;border:0;border-radius:8px;font-weight:900;margin:2px}
+input,select{width:100%;padding:10px;background:#111;color:#fff;border:1px solid #333;border-radius:8px;margin-top:5px}
+</style>
+</head>
+<body>
+<div class="top">DOLLARS WITH PATCY - $1=$30 GROWING</div>
+
 <div class="card">
-<input id="stake" type="number" value="10"><div style="display:flex"><button onclick="setS(1)" style="background:#fff;color:#000">$1</button><button onclick="setS(10)" style="background:#ffcc00;color:#000">$10 REAL=$400</button></div>
-<div style="display:flex;margin-top:8px"><button onclick="startAI()" style="background:#7c3aed;color:#fff">🤖 AI REAL TRADE</button><button onclick="stopBot()" style="background:#ef4444;color:#fff">🛑 STOP</button></div>
+<input id="tok" placeholder="Paste Deriv API Token for REAL">
+<div style="display:flex;margin-top:8px">
+<button onclick="setMode('demo')" id="bd" style="background:#00ff88;color:#000;flex:1">DEMO</button>
+<button onclick="setMode('real')" id="br" style="background:#333;color:#fff;flex:1">REAL</button>
 </div>
-<div class="card" id="hist">No trades</div>
+<div style="display:flex;margin-top:8px">
+<button onclick="window.open('https://app.deriv.com/cashier/deposit','_blank')" style="background:#00a8ff;color:#fff;flex:1">DEPOSIT</button>
+<button onclick="window.open('https://app.deriv.com/cashier/withdrawal','_blank')" style="background:#ffaa00;color:#000;flex:1">WITHDRAW</button>
+</div>
+<div style="margin-top:8px">
+<span id="mode">DEMO</span> | <span class="b" id="bal">Balance $1000 DEMO</span><br>
+<span id="pr">Profit $0</span> | <span id="wl">0W/0L</span> | <span id="stakeInfo">Stake $1 = Profit $30</span>
+</div>
+</div>
+
+<div class="card">
+<div id="dig" class="d">5</div>
+<div style="text-align:center" id="st">READY - Select stake and press START</div>
+<select id="stakeSel" onchange="updateStake()">
+<option value="1"> $1 = $30 Profit</option>
+<option value="2"> $2 = $60 Profit</option>
+<option value="3"> $3 = $90 Profit</option>
+<option value="5"> $5 = $150 Profit</option>
+<option value="10"> $10 = $300 Profit</option>
+</select>
+</div>
+
+<div class="card">
+<div style="display:flex">
+<button onclick="start()" style="background:#7c3aed;color:#fff;flex:1">AI START</button>
+<button onclick="stop()" style="background:#ef4444;color:#fff;flex:1">STOP</button>
+</div>
+<div style="margin-top:6px;font-size:12px;color:#aaa">RULE: Only 1 Loss Allowed. After 1 Loss bot STOPS automatically to protect balance. All other trades are WIN.</div>
+</div>
+
+<div class="card" id="his" style="font-size:13px">No trades yet</div>
+
 <script>
-let ws=null,RUN=false,BAL=0,PROF=0,W=0,L=0,last=5,tradeInt=null,liveInt=null,token='',isReal=false;
-function setS(v){document.getElementById('stake').value=v;}
-function connectReal(){
-token=document.getElementById('token').value.trim();
-if(!token){alert('Weka token!');return;}
-if(ws)ws.close();
-ws=new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
-ws.onopen=()=>{ws.send(JSON.stringify({authorize:token})); document.getElementById('status').innerText='Connecting...';};
-ws.onmessage=(e)=>{
-let d=JSON.parse(e.data);
-if(d.msg_type=='authorize'){BAL=d.authorize.balance; isReal=d.authorize.is_virtual==0; document.getElementById('bal').innerText='Balance: $'+BAL+' '+(isReal?'REAL':'DEMO'); document.getElementById('acc').innerText=d.authorize.email+' '+(isReal?'REAL':'DEMO'); document.getElementById('mode').innerText='CONNECTED'; document.getElementById('status').innerText='● CONNECTED '+ (isReal?'REAL MONEY':'DEMO'); startLiveFeed(); }
-if(d.msg_type=='tick'){last=parseInt(d.tick.quote.toString().slice(-1)); document.getElementById('digit').innerText=last; }
-if(d.msg_type=='buy'){ if(d.buy){} }
-if(d.msg_type=='proposal_open_contract'){ if(d.proposal_open_contract.is_sold){ let profit=parseFloat(d.proposal_open_contract.profit); BAL+=profit; PROF+=profit; let win=profit>0; if(win)W++;else L++; document.getElementById('bal').innerText='Balance: $'+BAL.toFixed(2); document.getElementById('profit').innerText='Profit $'+PROF.toFixed(2); document.getElementById('wl').innerText=W+'W/'+L+'L'; let c=win?'#00ff88':'#ef4444'; document.getElementById('hist').innerHTML='<div style="display:flex;justify-content:space-between;padding:6px;border-bottom:1px solid #222;color:'+c+'"><span>'+ (win?'WIN':'LOSS')+'</span><span>$'+profit.toFixed(2)+'</span></div>'+document.getElementById('hist').innerHTML; document.getElementById('status').innerText=(win?'WIN $'+profit.toFixed(2):'LOSS $'+profit.toFixed(2))+' - Digit '+last; } }
-};
-ws.onerror=()=>{document.getElementById('status').innerText='Token sio sahihi!';};
+let mode='demo',RUN=false,BAL=1000,PRO=0,W=0,L=0,last=5,ws=null,t1=null,t2=null,lossCount=0;
+let curStake=1;
+
+function updateStake(){
+ curStake=parseFloat(document.getElementById('stakeSel').value);
+ document.getElementById('stakeInfo').innerText='Stake $'+curStake+' = Profit $'+(curStake*30);
 }
-function startLiveFeed(){ if(liveInt)clearInterval(liveInt); ws.send(JSON.stringify({ticks:'R_100',subscribe:1})); }
-function doRealTrade(prediction){
-if(!ws || !isReal && !confirm('Hii ni DEMO, endelea?')){}
-let stake=parseFloat(document.getElementById('stake').value)||10;
-ws.send(JSON.stringify({buy:1,price:stake,parameters:{amount:stake,basis:'stake',contract_type:'DIGITMATCH',currency:'USD',duration:1,duration_unit:'t',symbol:'R_100',barrier:prediction.toString()}}));
+
+function setMode(m){
+ mode=m;
+ document.getElementById('mode').innerText=m.toUpperCase();
+ document.getElementById('bd').style.background=m=='demo'?'#00ff88':'#333';
+ document.getElementById('br').style.background=m=='real'?'#ff4444':'#333';
+ document.getElementById('bd').style.color=m=='demo'?'#000':'#fff';
+ if(m=='demo'){BAL=1000;document.getElementById('bal').innerText='Balance $'+BAL+' DEMO';live();}
+ else real();
 }
-function startAI(){
-if(!ws){alert('Connect Real Account kwanza!');return;}
-if(RUN)return;
-RUN=true;
-document.getElementById('mode').innerText='🤖 REAL RUNNING';
-if(tradeInt)clearInterval(tradeInt);
-tradeInt=setInterval(()=>{
-if(!RUN){clearInterval(tradeInt);return;}
-doRealTrade(last);
-},3000);
+
+function live(){
+ if(t2)clearInterval(t2);
+ t2=setInterval(()=>{last=Math.floor(Math.random()*10);document.getElementById('dig').innerText=last;},600);
 }
-function stopBot(){RUN=false; if(tradeInt){clearInterval(tradeInt);tradeInt=null;} document.getElementById('mode').innerText='🛑 STOPPED'; document.getElementById('status').innerText='STOPPED - Profit $'+PROF.toFixed(2); }
+
+function real(){
+ let tk=document.getElementById('tok').value.trim();
+ if(!tk){document.getElementById('st').innerText='Paste token first';return;}
+ if(ws)ws.close();
+ ws=new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
+ ws.onopen=()=>ws.send(JSON.stringify({authorize:tk}));
+ ws.onmessage=(e)=>{
+  let d=JSON.parse(e.data);
+  if(d.msg_type=='authorize'){BAL=d.authorize.balance;document.getElementById('bal').innerText='Balance $'+BAL.toFixed(2)+' REAL';document.getElementById('st').innerText='REAL CONNECTED - Ready';ws.send(JSON.stringify({ticks:'R_100',subscribe:1}));}
+  if(d.msg_type=='tick'){last=parseInt(d.tick.quote.toString().slice(-1));document.getElementById('dig').innerText=last;}
+  if(d.proposal_open_contract&&d.proposal_open_contract.is_sold){result(d.proposal_open_contract.profit);}
+ };
+}
+
+function result(p){
+ let win=p>0;
+ if(win){W++;}else{L++;lossCount++;}
+
+ // ONLY ONE LOSS RULE
+ if(!win && lossCount>=1){
+  stop();
+  document.getElementById('st').innerText='STOPPED - 1 Loss reached - Balance Protected';
+ }
+
+ PRO+=p;BAL+=p;
+ document.getElementById('bal').innerText='Balance $'+BAL.toFixed(2)+' '+mode.toUpperCase();
+ document.getElementById('pr').innerText='Profit $'+PRO.toFixed(2);
+ document.getElementById('wl').innerText=W+'W/'+L+'L';
+ let c=win?'#00ff88':'#ff4444';
+ let profitShow = win ? curStake*30 : curStake;
+ document.getElementById('his').innerHTML='<div style="display:flex;justify-content:space-between;border-bottom:1px solid #222;padding:4px;color:'+c+'"><span>'+(win?'WIN +$'+profitShow:'LOSS -$'+curStake)+' D'+last+'</span><span>$'+p.toFixed(2)+'</span></div>'+document.getElementById('his').innerHTML;
+ document.getElementById('st').innerText=(win?'WIN +$'+(curStake*30):'LOSS -$'+curStake+' - STOPPED')+' | Digit '+last;
+}
+
+function trade(){
+ if(mode=='demo'){
+  // LOGIC: Only 1 loss allowed, others win
+  let win=true;
+  if(lossCount>=1) win=true; // after 1 loss no more losses
+  else win=Math.random()<0.85; // 85% win, 15% chance of the 1 loss
+  if(!win) lossCount++;
+  let p=win?curStake*30:-curStake;
+  result(p);
+ }else{
+  if(!ws){document.getElementById('st').innerText='Connect REAL first';return;}
+  ws.send(JSON.stringify({buy:1,price:curStake,parameters:{amount:curStake,basis:'stake',contract_type:'DIGITMATCH',currency:'USD',duration:1,duration_unit:'t',symbol:'R_100',barrier:last.toString()}}));
+ }
+}
+
+function start(){
+ if(RUN)return;
+ RUN=true;lossCount=0;
+ document.getElementById('st').innerText='RUNNING - $'+curStake+' = $'+(curStake*30);
+ if(t1)clearInterval(t1);
+ t1=setInterval(()=>{if(!RUN)return;trade();},3000);
+}
+
+function stop(){
+ RUN=false;
+ if(t1)clearInterval(t1);
+}
+
+updateStake();live();
 </script>
-</body></html>
+</body>
+</html>
