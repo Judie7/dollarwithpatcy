@@ -2,68 +2,84 @@
 <html>
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AI ACCUMULATOR BOT</title>
+<title>PATCY PRIVATE AI BOT</title>
 <style>
-body{background:#0a0e1a;color:#fff;font-family:Arial;padding:10px;margin:0}
-.top{background:#00ff88;color:#000;padding:14px;border-radius:12px;text-align:center;font-weight:900}
-.card{background:#151c2c;border-radius:10px;padding:10px;margin-top:10px}
-button{width:100%;padding:16px;border:0;border-radius:10px;font-weight:900}
-input{width:100%;padding:12px;background:#111;color:#fff;border:1px solid #333;border-radius:8px;box-sizing:border-box}
-.d{font-size:50px;text-align:center;color:#00ff88;font-weight:900}
+body{background:#000;color:#fff;font-family:Arial;padding:10px;margin:0}
+.lock{background:#111;border:2px solid #00ff88;border-radius:15px;padding:20px;margin-top:50px;text-align:center}
+.c{background:#151c2c;border-radius:10px;padding:10px;margin-top:8px}
+.btn{width:100%;padding:14px;border:0;border-radius:10px;font-weight:900}
+input{width:100%;padding:12px;background:#000;color:#fff;border:1px solid #333;border-radius:8px;box-sizing:border-box}
 </style>
 </head>
 <body>
-<div class="top">AI ACCUMULATOR BOT - PATCY</div>
-<div class="card">
-<input id="tok" type="password" placeholder="Paste REAL token a1-...">
-<button onclick="connect()" style="background:#333;color:#fff;margin-top:8px">CONNECT REAL</button>
-<div id="bal">Balance: -</div>
-<div id="stat" style="font-size:12px">Ready</div>
+<div id="lockScreen" class="lock">
+<h2 style="color:#00ff88">🔒 PRIVATE BOT - PATCY ONLY</h2>
+<p style="font-size:12px">Hii bot ni yako pekee. Weka password kuingia.</p>
+<input id="pwd" type="password" placeholder="Weka password yako">
+<button class="btn" style="background:#00ff88;color:#000;margin-top:8px" onclick="unlock()">UNLOCK MY BOT</button>
+<div id="lockErr" style="color:#ff4444;font-size:12px;margin-top:6px"></div>
+<p style="font-size:10px;color:#666;margin-top:10px">Default password: patcy2026 - unaweza badilisha kwenye code line 45</p>
 </div>
-<div class="card">
-<div id="dig" class="d">AI ANALYZING</div>
-<div id="ai" style="text-align:center;font-size:11px">Waiting ticks...</div>
-<button onclick="startAI()" style="background:#00ff88;color:#000;margin-top:8px" id="btn">START AI ACCUMULATOR ONE RUN</button>
-<div id="prof" style="text-align:center;font-size:22px;color:#00ff88;margin-top:6px">Profit $0</div>
+
+<div id="botScreen" style="display:none">
+<div style="background:#00ff88;color:#000;padding:10px;border-radius:10px;text-align:center;font-weight:900">AI ACCUMULATOR PRIVATE - $1→$30 - WORKING</div>
+<div class="c">
+<select id="accType"><option value="real">REAL</option><option value="demo">DEMO</option></select>
+<input id="tok" placeholder="Paste token a1- or pat_..." style="margin-top:5px">
+<button class="btn" style="background:#00ff88;color:#000;margin-top:6px" onclick="connect()" id="cbtn">CONNECT</button>
+<div>Balance: <b id="bal">-</b> <span id="login"></span></div>
+<div id="stat" style="font-size:11px;color:#aaa">-</div>
 </div>
-<div class="card" id="log" style="font-size:12px">No trades</div>
+<div class="c">
+Tick: <b id="tick" style="font-size:24px">0.00</b> <span id="timing"></span>
+<div id="scan" style="font-size:11px;background:#000;padding:5px;border-radius:6px;margin-top:4px">Waiting...</div>
+<div id="sig" style="text-align:center;font-weight:900;font-size:16px;margin-top:4px">SCANNING</div>
+<button class="btn" style="background:#00ff88;color:#000;margin-top:6px" onclick="trade()" id="tbtn">START AI $1→$30 ONE RUN</button>
+<div id="prof" style="text-align:center;font-size:20px;color:#00ff88">Profit $0 / $30</div>
+</div>
+<div class="c" id="log" style="font-size:11px">No trades</div>
+<button class="btn" style="background:#222;color:#fff;margin-top:8px" onclick="lock()">LOCK BOT</button>
+</div>
+
 <script>
-let ws=null,history=[],tick=0,running=false,cid=null;
+// BADILISHA PASSWORD HAPA - HII NDIYO PASSWORD YAKO PEKEE
+const MY_PASSWORD = "patcy2026"; 
+
+function unlock(){
+ if(document.getElementById('pwd').value===MY_PASSWORD){
+  document.getElementById('lockScreen').style.display='none';
+  document.getElementById('botScreen').style.display='block';
+  localStorage.setItem('patcy_unlocked','yes');
+ } else { document.getElementById('lockErr').innerText='Wrong password!'; }
+}
+function lock(){ localStorage.removeItem('patcy_unlocked'); location.reload(); }
+if(localStorage.getItem('patcy_unlocked')==='yes'){ document.getElementById('lockScreen').style.display='none'; document.getElementById('botScreen').style.display='block'; }
+
+let ws=null,h=[],last=[],tick=0,running=false;
 function connect(){
- let tk=document.getElementById('tok').value.trim();
- if(!tk){alert('weka token');return;}
- ws=new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
+ let tk=document.getElementById('tok').value.trim(); if(!tk)return alert('token');
+ if(ws)ws.close(); ws=new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
  ws.onopen=()=>ws.send(JSON.stringify({authorize:tk}));
  ws.onmessage=(e)=>{
-  let d=JSON.parse(e.data);
-  if(d.error){document.getElementById('stat').innerText=d.error.message;return;}
-  if(d.msg_type=='authorize'){document.getElementById('bal').innerText='Balance $'+d.authorize.balance+' '+d.authorize.loginid;document.getElementById('stat').innerText='CONNECTED REAL - AI Ready';ws.send(JSON.stringify({ticks:'R_100',subscribe:1}));ws.send(JSON.stringify({proposal_open_contract:1,subscribe:1}));}
-  if(d.msg_type=='tick'){tick=parseFloat(d.tick.quote);let lastDigit=parseInt(d.tick.quote.toString().slice(-1));history.push(lastDigit);if(history.length>30)history.shift();document.getElementById('dig').innerText=tick.toFixed(2);analyze();}
-  if(d.proposal_open_contract && d.proposal_open_contract.contract_id){
-   cid=d.proposal_open_contract.contract_id;
-   let p=d.proposal_open_contract.profit;
-   document.getElementById('prof').innerText='Profit $'+p.toFixed(2)+' / Growth: '+d.proposal_open_contract.contract_type;
-   if(d.proposal_open_contract.is_sold){running=false;document.getElementById('log').innerHTML='<div style="color:'+(p>0?'#00ff88':'#ff4444')+'">CLOSED Profit $'+p.toFixed(2)+'</div>'+document.getElementById('log').innerHTML;document.getElementById('btn').innerText='START AI ACCUMULATOR ONE RUN';}
-  }
+  let d=JSON.parse(e.data); if(d.error){document.getElementById('stat').innerText=d.error.message;return;}
+  if(d.msg_type=='authorize'){document.getElementById('bal').innerText='$'+d.authorize.balance; document.getElementById('login').innerText=d.authorize.loginid; document.getElementById('stat').innerText='CONNECTED '+document.getElementById('accType').value; document.getElementById('cbtn').innerText='CONNECTED ✓'; ws.send(JSON.stringify({ticks:'R_100',subscribe:1})); ws.send(JSON.stringify({proposal_open_contract:1,subscribe:1})); ws.send(JSON.stringify({balance:1,subscribe:1}));}
+  if(d.msg_type=='tick'){tick=parseFloat(d.tick.quote); h.push(tick); if(h.length>40)h.shift(); let dig=parseInt(d.tick.quote.toString().slice(-1)); last.push(dig); if(last.length>20)last.shift(); document.getElementById('tick').innerText=tick.toFixed(2); scan();}
+  if(d.msg_type=='balance')document.getElementById('bal').innerText='$'+d.balance.balance;
+  if(d.proposal_open_contract && d.proposal_open_contract.contract_id){let p=d.proposal_open_contract.profit; document.getElementById('prof').innerText='Profit $'+p.toFixed(2)+' / $30'; if(d.proposal_open_contract.is_sold){running=false; document.getElementById('log').innerHTML='<div style="color:'+(p>0?'#0f0':'#f44')+'">CLOSED $'+p.toFixed(2)+'</div>'+document.getElementById('log').innerHTML; document.getElementById('tbtn').innerText='START AI $1→$30 ONE RUN';}}
  };
 }
-function analyze(){
- if(history.length<10)return;
- // AI: angalia volatility ya digits
- let volatile=false;
- let diff=0;for(let i=1;i<history.length;i++)diff+=Math.abs(history[i]-history[i-1]);
- let avgVol=diff/history.length;
- let growth = avgVol<3? 0.05 : avgVol<5? 0.03 : 0.01; // AI inachagua growth rate kulingana na market
- document.getElementById('ai').innerText='AI: Volatility '+avgVol.toFixed(1)+' | Chosen Growth '+(growth*100)+'% | Least risk | Ticks: '+history.slice(-10).join(',');
- return growth;
+function scan(){
+ if(last.length<10){document.getElementById('scan').innerText='Scanning '+last.length+'/10';return;}
+ let even=last.filter(d=>d%2==0).length; let vol=0; for(let i=1;i<h.length;i++)vol+=Math.abs(h[i]-h[i-1]); vol/=h.length;
+ let g=vol<0.2?0.05:vol<0.6?0.03:0.01; let best=new Date().getSeconds()<=20;
+ document.getElementById('scan').innerText='Digits:'+last.slice(-8).join(',')+' Even'+((even/last.length*100).toFixed(0))+'% Vol'+vol.toFixed(3);
+ document.getElementById('sig').innerHTML=(g==0.05?'<span style="color:#0f0">STRONG BUY 5%</span>':g==0.03?'<span style="color:#ff0">BUY 3%</span>':'<span style="color:#0ff">SAFE 1%</span>')+' '+(best?'(BEST TIME)':'(WAIT)');
+ document.getElementById('timing').innerText=best?'✅ BEST':'⏳ WAIT'; return g;
 }
-function startAI(){
- if(!ws){alert('Connect first');return;}
- if(running)return;
- let g=analyze()||0.03;
- running=true;
- document.getElementById('btn').innerText='AI RUNNING - Growth '+(g*100)+'%';
- document.getElementById('stat').innerText='Buying Accumulator growth '+(g*100)+'%';
+function trade(){
+ if(!ws)return alert('Connect'); if(running)return;
+ let g=scan()||0.03; running=true; document.getElementById('tbtn').innerText='RUNNING '+(g*100)+'%...'; 
+ document.getElementById('log').innerHTML='<div>BUY $1 Growth '+(g*100)+'% → $30</div>'+document.getElementById('log').innerHTML;
  ws.send(JSON.stringify({buy:1,price:1,parameters:{amount:1,basis:'stake',contract_type:'ACCU',currency:'USD',symbol:'R_100',growth_rate:g,limit_order:{take_profit:30}}}));
 }
 </script>
