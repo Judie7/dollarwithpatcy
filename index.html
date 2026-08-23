@@ -1,147 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DOLLARS WITH PATCY</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI ACCUMULATOR BOT</title>
 <style>
 body{background:#0a0e1a;color:#fff;font-family:Arial;padding:10px;margin:0}
-.top{background:#00ff88;color:#000;padding:12px;border-radius:10px;text-align:center;font-weight:900}
-.card{background:#151c2c;border:1px solid #222;border-radius:10px;padding:10px;margin-top:10px}
-.b{color:#00ff88;font-weight:900}
-.d{font-size:62px;text-align:center;font-weight:900;color:#00ff88}
-button{padding:12px;border:0;border-radius:8px;font-weight:900;margin:2px}
-input,select{width:100%;padding:10px;background:#111;color:#fff;border:1px solid #333;border-radius:8px;margin-top:5px}
+.top{background:#00ff88;color:#000;padding:14px;border-radius:12px;text-align:center;font-weight:900}
+.card{background:#151c2c;border-radius:10px;padding:10px;margin-top:10px}
+button{width:100%;padding:16px;border:0;border-radius:10px;font-weight:900}
+input{width:100%;padding:12px;background:#111;color:#fff;border:1px solid #333;border-radius:8px;box-sizing:border-box}
+.d{font-size:50px;text-align:center;color:#00ff88;font-weight:900}
 </style>
 </head>
 <body>
-<div class="top">DOLLARS WITH PATCY - $1=$30 GROWING</div>
-
+<div class="top">AI ACCUMULATOR BOT - PATCY</div>
 <div class="card">
-<input id="tok" placeholder="Paste Deriv API Token for REAL">
-<div style="display:flex;margin-top:8px">
-<button onclick="setMode('demo')" id="bd" style="background:#00ff88;color:#000;flex:1">DEMO</button>
-<button onclick="setMode('real')" id="br" style="background:#333;color:#fff;flex:1">REAL</button>
+<input id="tok" type="password" placeholder="Paste REAL token a1-...">
+<button onclick="connect()" style="background:#333;color:#fff;margin-top:8px">CONNECT REAL</button>
+<div id="bal">Balance: -</div>
+<div id="stat" style="font-size:12px">Ready</div>
 </div>
-<div style="display:flex;margin-top:8px">
-<button onclick="window.open('https://app.deriv.com/cashier/deposit','_blank')" style="background:#00a8ff;color:#fff;flex:1">DEPOSIT</button>
-<button onclick="window.open('https://app.deriv.com/cashier/withdrawal','_blank')" style="background:#ffaa00;color:#000;flex:1">WITHDRAW</button>
-</div>
-<div style="margin-top:8px">
-<span id="mode">DEMO</span> | <span class="b" id="bal">Balance $1000 DEMO</span><br>
-<span id="pr">Profit $0</span> | <span id="wl">0W/0L</span> | <span id="stakeInfo">Stake $1 = Profit $30</span>
-</div>
-</div>
-
 <div class="card">
-<div id="dig" class="d">5</div>
-<div style="text-align:center" id="st">READY - Select stake and press START</div>
-<select id="stakeSel" onchange="updateStake()">
-<option value="1"> $1 = $30 Profit</option>
-<option value="2"> $2 = $60 Profit</option>
-<option value="3"> $3 = $90 Profit</option>
-<option value="5"> $5 = $150 Profit</option>
-<option value="10"> $10 = $300 Profit</option>
-</select>
+<div id="dig" class="d">AI ANALYZING</div>
+<div id="ai" style="text-align:center;font-size:11px">Waiting ticks...</div>
+<button onclick="startAI()" style="background:#00ff88;color:#000;margin-top:8px" id="btn">START AI ACCUMULATOR ONE RUN</button>
+<div id="prof" style="text-align:center;font-size:22px;color:#00ff88;margin-top:6px">Profit $0</div>
 </div>
-
-<div class="card">
-<div style="display:flex">
-<button onclick="start()" style="background:#7c3aed;color:#fff;flex:1">AI START</button>
-<button onclick="stop()" style="background:#ef4444;color:#fff;flex:1">STOP</button>
-</div>
-<div style="margin-top:6px;font-size:12px;color:#aaa">RULE: Only 1 Loss Allowed. After 1 Loss bot STOPS automatically to protect balance. All other trades are WIN.</div>
-</div>
-
-<div class="card" id="his" style="font-size:13px">No trades yet</div>
-
+<div class="card" id="log" style="font-size:12px">No trades</div>
 <script>
-let mode='demo',RUN=false,BAL=1000,PRO=0,W=0,L=0,last=5,ws=null,t1=null,t2=null,lossCount=0;
-let curStake=1;
-
-function updateStake(){
- curStake=parseFloat(document.getElementById('stakeSel').value);
- document.getElementById('stakeInfo').innerText='Stake $'+curStake+' = Profit $'+(curStake*30);
-}
-
-function setMode(m){
- mode=m;
- document.getElementById('mode').innerText=m.toUpperCase();
- document.getElementById('bd').style.background=m=='demo'?'#00ff88':'#333';
- document.getElementById('br').style.background=m=='real'?'#ff4444':'#333';
- document.getElementById('bd').style.color=m=='demo'?'#000':'#fff';
- if(m=='demo'){BAL=1000;document.getElementById('bal').innerText='Balance $'+BAL+' DEMO';live();}
- else real();
-}
-
-function live(){
- if(t2)clearInterval(t2);
- t2=setInterval(()=>{last=Math.floor(Math.random()*10);document.getElementById('dig').innerText=last;},600);
-}
-
-function real(){
+let ws=null,history=[],tick=0,running=false,cid=null;
+function connect(){
  let tk=document.getElementById('tok').value.trim();
- if(!tk){document.getElementById('st').innerText='Paste token first';return;}
- if(ws)ws.close();
+ if(!tk){alert('weka token');return;}
  ws=new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
  ws.onopen=()=>ws.send(JSON.stringify({authorize:tk}));
  ws.onmessage=(e)=>{
   let d=JSON.parse(e.data);
-  if(d.msg_type=='authorize'){BAL=d.authorize.balance;document.getElementById('bal').innerText='Balance $'+BAL.toFixed(2)+' REAL';document.getElementById('st').innerText='REAL CONNECTED - Ready';ws.send(JSON.stringify({ticks:'R_100',subscribe:1}));}
-  if(d.msg_type=='tick'){last=parseInt(d.tick.quote.toString().slice(-1));document.getElementById('dig').innerText=last;}
-  if(d.proposal_open_contract&&d.proposal_open_contract.is_sold){result(d.proposal_open_contract.profit);}
+  if(d.error){document.getElementById('stat').innerText=d.error.message;return;}
+  if(d.msg_type=='authorize'){document.getElementById('bal').innerText='Balance $'+d.authorize.balance+' '+d.authorize.loginid;document.getElementById('stat').innerText='CONNECTED REAL - AI Ready';ws.send(JSON.stringify({ticks:'R_100',subscribe:1}));ws.send(JSON.stringify({proposal_open_contract:1,subscribe:1}));}
+  if(d.msg_type=='tick'){tick=parseFloat(d.tick.quote);let lastDigit=parseInt(d.tick.quote.toString().slice(-1));history.push(lastDigit);if(history.length>30)history.shift();document.getElementById('dig').innerText=tick.toFixed(2);analyze();}
+  if(d.proposal_open_contract && d.proposal_open_contract.contract_id){
+   cid=d.proposal_open_contract.contract_id;
+   let p=d.proposal_open_contract.profit;
+   document.getElementById('prof').innerText='Profit $'+p.toFixed(2)+' / Growth: '+d.proposal_open_contract.contract_type;
+   if(d.proposal_open_contract.is_sold){running=false;document.getElementById('log').innerHTML='<div style="color:'+(p>0?'#00ff88':'#ff4444')+'">CLOSED Profit $'+p.toFixed(2)+'</div>'+document.getElementById('log').innerHTML;document.getElementById('btn').innerText='START AI ACCUMULATOR ONE RUN';}
+  }
  };
 }
-
-function result(p){
- let win=p>0;
- if(win){W++;}else{L++;lossCount++;}
-
- // ONLY ONE LOSS RULE
- if(!win && lossCount>=1){
-  stop();
-  document.getElementById('st').innerText='STOPPED - 1 Loss reached - Balance Protected';
- }
-
- PRO+=p;BAL+=p;
- document.getElementById('bal').innerText='Balance $'+BAL.toFixed(2)+' '+mode.toUpperCase();
- document.getElementById('pr').innerText='Profit $'+PRO.toFixed(2);
- document.getElementById('wl').innerText=W+'W/'+L+'L';
- let c=win?'#00ff88':'#ff4444';
- let profitShow = win ? curStake*30 : curStake;
- document.getElementById('his').innerHTML='<div style="display:flex;justify-content:space-between;border-bottom:1px solid #222;padding:4px;color:'+c+'"><span>'+(win?'WIN +$'+profitShow:'LOSS -$'+curStake)+' D'+last+'</span><span>$'+p.toFixed(2)+'</span></div>'+document.getElementById('his').innerHTML;
- document.getElementById('st').innerText=(win?'WIN +$'+(curStake*30):'LOSS -$'+curStake+' - STOPPED')+' | Digit '+last;
+function analyze(){
+ if(history.length<10)return;
+ // AI: angalia volatility ya digits
+ let volatile=false;
+ let diff=0;for(let i=1;i<history.length;i++)diff+=Math.abs(history[i]-history[i-1]);
+ let avgVol=diff/history.length;
+ let growth = avgVol<3? 0.05 : avgVol<5? 0.03 : 0.01; // AI inachagua growth rate kulingana na market
+ document.getElementById('ai').innerText='AI: Volatility '+avgVol.toFixed(1)+' | Chosen Growth '+(growth*100)+'% | Least risk | Ticks: '+history.slice(-10).join(',');
+ return growth;
 }
-
-function trade(){
- if(mode=='demo'){
-  // LOGIC: Only 1 loss allowed, others win
-  let win=true;
-  if(lossCount>=1) win=true; // after 1 loss no more losses
-  else win=Math.random()<0.85; // 85% win, 15% chance of the 1 loss
-  if(!win) lossCount++;
-  let p=win?curStake*30:-curStake;
-  result(p);
- }else{
-  if(!ws){document.getElementById('st').innerText='Connect REAL first';return;}
-  ws.send(JSON.stringify({buy:1,price:curStake,parameters:{amount:curStake,basis:'stake',contract_type:'DIGITMATCH',currency:'USD',duration:1,duration_unit:'t',symbol:'R_100',barrier:last.toString()}}));
- }
+function startAI(){
+ if(!ws){alert('Connect first');return;}
+ if(running)return;
+ let g=analyze()||0.03;
+ running=true;
+ document.getElementById('btn').innerText='AI RUNNING - Growth '+(g*100)+'%';
+ document.getElementById('stat').innerText='Buying Accumulator growth '+(g*100)+'%';
+ ws.send(JSON.stringify({buy:1,price:1,parameters:{amount:1,basis:'stake',contract_type:'ACCU',currency:'USD',symbol:'R_100',growth_rate:g,limit_order:{take_profit:30}}}));
 }
-
-function start(){
- if(RUN)return;
- RUN=true;lossCount=0;
- document.getElementById('st').innerText='RUNNING - $'+curStake+' = $'+(curStake*30);
- if(t1)clearInterval(t1);
- t1=setInterval(()=>{if(!RUN)return;trade();},3000);
-}
-
-function stop(){
- RUN=false;
- if(t1)clearInterval(t1);
-}
-
-updateStake();live();
 </script>
 </body>
 </html>
