@@ -1,108 +1,11 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>$1 to $20 No Loss</title><style>body{background:#020617;color:#fff;font-family:Arial;padding:10px}.card{background:#0f172a;padding:12px;border-radius:12px;margin-top:10px;border:1px solid #1e293b}.btn{width:100%;padding:14px;border:0;border-radius:10px;font-weight:900;margin-top:6px;cursor:pointer}input,select{width:100%;padding:12px;background:#000;color:#fff;border:1px solid #333;border-radius:8px;box-sizing:border-box}.live{font-size:11px;background:#000;padding:8px;border-radius:8px;margin-top:6px;border-left:3px solid #22c55e}</style></head><body>
-<div style="background:linear-gradient(90deg,#22c55e,#06b6d4);color:#000;padding:12px;border-radius:10px;text-align:center;font-weight:900">$1 → $20 NO LOSS BOT</div>
-
-<div class="card">
-<input id="token" placeholder="Enter Deriv token a1-...">
-<button class="btn" style="background:#22c55e;color:#000" onclick="connect()">CONNECT</button>
-<div style="margin-top:8px">Account: <b id="acc">-</b> | Balance: <b id="bal">-</b></div>
-<div>Profit: <b id="profit" style="font-size:24px">$0.00 / $20.00</b> | Loss: <b id="loss">0/1</b></div>
-<div style="background:#000;height:12px;border-radius:6px"><div id="bar" style="height:100%;width:0%;background:#22c55e"></div></div>
-<div id="status" style="font-size:11px;color:#facc15;margin-top:4px">Status: Not connected</div>
-</div>
-
-<div class="card" style="border:1px solid #22c55e">
-<div style="font-weight:900;color:#22c55e">LIVE MARKET SCANNER</div>
-<div>Price: <b id="tick" style="font-size:30px">-</b> <span id="vol"></span></div>
-<div class="live" id="l1">Last digits: Waiting...</div>
-<div class="live" id="l2">Analysis: Waiting...</div>
-<div class="live" id="l3" style="font-weight:900;text-align:center;font-size:13px">AI SIGNAL: Waiting...</div>
-</div>
-
-<div class="card">
-<button class="btn" id="startBtn" style="background:linear-gradient(90deg,#22c55e,#06b6d4);color:#000;font-size:18px" onclick="startBot()">START $1 → $20</button>
-<button class="btn" style="background:#ef4444;color:#fff" onclick="stopBot()">STOP</button>
-<div style="display:flex;gap:6px">
-<button class="btn" style="background:#16a34a;color:#fff;flex:1" onclick="window.open('https://app.deriv.com/cashier/payment-agent','_blank')">DEPOSIT VIA AGENT</button>
-<button class="btn" style="background:#f59e0b;color:#000;flex:1" onclick="window.open('https://app.deriv.com/cashier/payment-agent','_blank')">WITHDRAW VIA AGENT</button>
-</div>
-</div>
-
-<div class="card" id="log" style="height:130px;overflow:auto;font-size:11px">Log: Ready...</div>
-
-<script>
-let wsTick=null, ws=null, prices=[], digits=[], running=false, profit=0, lossCount=0, growth=0.01;
-function log(m){document.getElementById('log').innerHTML='<div>'+new Date().toLocaleTimeString()+' '+m+'</div>'+document.getElementById('log').innerHTML;}
-
-function initTick(){
-  wsTick=new WebSocket('wss://ws.binaryws.com/websockets/v3?app_id=1089');
-  wsTick.onopen=()=>{log('Tick connected'); wsTick.send(JSON.stringify({ticks:'R_100',subscribe:1}));};
-  wsTick.onmessage=e=>{
-    let d=JSON.parse(e.data); if(!d.tick) return;
-    let price=parseFloat(d.tick.quote); let lastDigit=parseInt(d.tick.quote.toString().slice(-1));
-    document.getElementById('tick').innerText=price.toFixed(2);
-    prices.push(price); if(prices.length>60) prices.shift();
-    digits.push(lastDigit); if(digits.length>60) digits.shift();
-    if(digits.length<20) return;
-    let last20=digits.slice(-20); let count={}; last20.forEach(x=>count[x]=(count[x]||0)+1);
-    for(let i=0;i<10;i++) if(!count[i]) count[i]=0;
-    let hot=Object.keys(count).reduce((a,b)=>count[a]>count[b]?a:b);
-    let cold=Object.keys(count).reduce((a,b)=>count[a]<count[b]?a:b);
-    let vol=0; for(let i=1;i<prices.length;i++) vol+=Math.abs(prices[i]-prices[i-1]); vol=vol/(prices.length||1);
-    document.getElementById('l1').innerText='Last 20 digits: '+last20.join(', ');
-    document.getElementById('l2').innerText='HOT: '+hot+' ('+count[hot]+'x) | COLD: '+cold+' ('+count[cold]+'x) | Volatility: '+vol.toFixed(4);
-    document.getElementById('vol').innerText='Vol: '+vol.toFixed(4);
-    let signal=vol<0.4?'SAFE TO TRADE - 1% GROWTH':'HIGH VOLATILITY - WAIT';
-    growth=0.01;
-    document.getElementById('l3').innerText='AI SIGNAL: '+signal;
-  };
-  wsTick.onerror=()=>setTimeout(initTick,2000);
-  wsTick.onclose=()=>setTimeout(initTick,2000);
-}
-initTick();
-
-function connect(){
-  let t=document.getElementById('token').value.trim();
-  if(!t){alert('Enter Deriv API token\nGet it from: app.deriv.com > Settings > API Token > Create (Read, Trade)'); return;}
-  document.getElementById('status').innerText='Connecting...';
-  if(ws) ws.close();
-  ws=new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
-  ws.onopen=()=>ws.send(JSON.stringify({authorize:t}));
-  ws.onmessage=e=>{
-    let d=JSON.parse(e.data);
-    if(d.error){document.getElementById('status').innerText='Error: '+d.error.message; log('Error: '+d.error.message); return;}
-    if(d.authorize){
-      let type=d.authorize.loginid.startsWith('VR')?'DEMO':'REAL';
-      document.getElementById('acc').innerText=type+' '+d.authorize.loginid;
-      document.getElementById('bal').innerText='$'+d.authorize.balance;
-      document.getElementById('status').innerText='Connected: '+type;
-      log('Connected '+type+' '+d.authorize.loginid+' Balance $'+d.authorize.balance);
-      ws.send(JSON.stringify({balance:1,subscribe:1}));
-      ws.send(JSON.stringify({proposal_open_contract:1,subscribe:1}));
-    }
-    if(d.balance) document.getElementById('bal').innerText='$'+d.balance.balance;
-    if(d.proposal_open_contract && d.proposal_open_contract.is_sold){
-      let p=d.proposal_open_contract.profit;
-      if(p>0){profit+=p; log('WIN $'+p.toFixed(2)+' Total $'+profit.toFixed(2));}
-      else{lossCount++; log('LOSS $'+p.toFixed(2)+' Loss '+lossCount+'/1 - STOPPED'); document.getElementById('loss').innerText=lossCount+'/1'; running=false; document.getElementById('startBtn').innerText='START $1 → $20'; alert('1 Loss reached - Bot stopped to protect balance'); return;}
-      document.getElementById('profit').innerText='$'+profit.toFixed(2)+' / $20.00';
-      document.getElementById('bar').style.width=Math.min(100,(profit/20)*100)+'%';
-      document.getElementById('loss').innerText=lossCount+'/1';
-      if(profit>=20){log('TARGET $20 REACHED'); alert('Target $20 reached! Withdraw via Agent'); running=false; document.getElementById('startBtn').innerText='TARGET REACHED - WITHDRAW'; return;}
-      if(running && lossCount<1) setTimeout(startBot,2000);
-    }
-    if(d.buy){log('Trade placed ID: '+d.buy.contract_id);}
-  };
-}
-
-function startBot(){
-  if(!ws){alert('Connect with token first'); return;}
-  if(lossCount>=1){alert('1 loss reached - Refresh page to restart'); return;}
-  if(profit>=20){alert('Target already reached'); return;}
-  running=true;
-  document.getElementById('startBtn').innerText='RUNNING 1% → $20...';
-  log('BUY $1 Growth 1% Take Profit $20');
-  ws.send(JSON.stringify({buy:1,price:1,parameters:{amount:1,basis:'stake',contract_type:'ACCU',currency:'USD',symbol:'R_100',growth_rate:growth,limit_order:{take_profit:20}}}));
-}
-
-function stopBot(){running=false; document.getElementById('startBtn').innerText='START $1 → $20'; log('Stopped');}
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>$1 to $20</title><style>body{background:#020617;color:#fff;font-family:Arial;padding:10px}.card{background:#0f172a;padding:12px;border-radius:12px;margin-top:10px;border:1px solid #1e293b}.btn{width:100%;padding:14px;border:0;border-radius:10px;font-weight:900;margin-top:6px}input{width:100%;padding:12px;background:#000;color:#fff;border:1px solid #333;border-radius:8px;box-sizing:border-box}.live{background:#000;padding:8px;border-radius:8px;margin-top:6px;border-left:3px solid #22c55e;font-size:11px}</style></head><body>
+<div style="background:linear-gradient(90deg,#22c55e,#06b6d4);color:#000;padding:12px;border-radius:10px;text-align:center;font-weight:900">$1 TO $20 NO LOSS</div>
+<div class="card"><input id="token" placeholder="Enter token a1-..."><button class="btn" style="background:#22c55e;color:#000" onclick="connect()">CONNECT</button><div>Acc: <b id="acc">-</b> | Bal: <b id="bal">-</b></div><div>Profit: <b id="profit">$0 / $20</b> | Loss: <b id="loss">0/1</b></div><div style="background:#000;height:10px;border-radius:5px"><div id="bar" style="height:100%;width:0%;background:#22c55e"></div></div><div id="status" style="font-size:11px;color:#facc15">Not connected</div></div>
+<div class="card" style="border:1px solid #22c55e"><div style="font-weight:900;color:#22c55e">LIVE SCANNER</div><div>Price: <b id="tick" style="font-size:28px">-</b> <span id="vol"></span></div><div class="live" id="l1">Waiting...</div><div class="live" id="l2">Waiting...</div><div class="live" id="l3" style="font-weight:900;text-align:center">SIGNAL: Waiting</div></div>
+<div class="card"><button class="btn" id="startBtn" style="background:linear-gradient(90deg,#22c55e,#06b6d4);color:#000" onclick="startBot()">START $1 TO $20</button><button class="btn" style="background:#ef4444;color:#fff" onclick="stopBot()">STOP</button><div style="display:flex;gap:6px"><button class="btn" style="background:#16a34a;color:#fff;flex:1" onclick="window.open('https://app.deriv.com/cashier/payment-agent','_blank')">DEPOSIT AGENT</button><button class="btn" style="background:#f59e0b;color:#000;flex:1" onclick="window.open('https://app.deriv.com/cashier/payment-agent','_blank')">WITHDRAW AGENT</button></div></div>
+<div class="card" id="log" style="height:120px;overflow:auto;font-size:11px">Ready</div>
+<script>let wsT=null,ws=null,prices=[],digits=[],running=false,profit=0,loss=0;function log(m){document.getElementById('log').innerHTML='<div>'+new Date().toLocaleTimeString()+' '+m+'</div>'+document.getElementById('log').innerHTML}
+function initTick(){wsT=new WebSocket('wss://ws.binaryws.com/websockets/v3?app_id=1089');wsT.onopen=()=>{log('Tick connected');wsT.send(JSON.stringify({ticks:'R_100',subscribe:1}))};wsT.onmessage=e=>{let d=JSON.parse(e.data);if(!d.tick)return;let p=parseFloat(d.tick.quote);let dg=parseInt(d.tick.quote.toString().slice(-1));document.getElementById('tick').innerText=p.toFixed(2);prices.push(p);if(prices.length>60)prices.shift();digits.push(dg);if(digits.length>60)digits.shift();if(digits.length<20)return;let last20=digits.slice(-20);let c={};last20.forEach(x=>c[x]=(c[x]||0)+1);for(let i=0;i<10;i++)if(!c[i])c[i]=0;let hot=Object.keys(c).reduce((a,b)=>c[a]>c[b]?a:b);let cold=Object.keys(c).reduce((a,b)=>c[a]<c[b]?a:b);let v=0;for(let i=1;i<prices.length;i++)v+=Math.abs(prices[i]-prices[i-1]);v=v/(prices.length||1);document.getElementById('l1').innerText='Last20: '+last20.join(',');document.getElementById('l2').innerText='HOT:'+hot+'('+c[hot]+'x) COLD:'+cold+'('+c[cold]+'x) Vol:'+v.toFixed(4);document.getElementById('vol').innerText='Vol:'+v.toFixed(3);document.getElementById('l3').innerText='SIGNAL: '+(v<0.4?'SAFE 1% - BUY':'WAIT')};wsT.onclose=()=>setTimeout(initTick,2000);wsT.onerror=()=>setTimeout(initTick,2000)}initTick();
+function connect(){let t=document.getElementById('token').value.trim();if(!t){alert('Enter token from app.deriv.com > Settings > API Token');return}document.getElementById('status').innerText='Connecting...';if(ws)ws.close();ws=new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');ws.onopen=()=>ws.send(JSON.stringify({authorize:t}));ws.onmessage=e=>{let d=JSON.parse(e.data);if(d.error){document.getElementById('status').innerText=d.error.message;log(d.error.message);return}if(d.authorize){let ty=d.authorize.loginid.startsWith('VR')?'DEMO':'REAL';document.getElementById('acc').innerText=ty+' '+d.authorize.loginid;document.getElementById('bal').innerText='$'+d.authorize.balance;document.getElementById('status').innerText='Connected '+ty;log('Connected '+ty);ws.send(JSON.stringify({balance:1,subscribe:1}));ws.send(JSON.stringify({proposal_open_contract:1,subscribe:1}))}if(d.balance)document.getElementById('bal').innerText='$'+d.balance.balance;if(d.proposal_open_contract&&d.proposal_open_contract.is_sold){let p=d.proposal_open_contract.profit;if(p>0){profit+=p;log('WIN $'+p.toFixed(2)+' Total $'+profit.toFixed(2))}else{loss++;log('LOSS STOP');running=false;alert('1 Loss - Stopped');return}document.getElementById('profit').innerText='$'+profit.toFixed(2)+' / $20';document.getElementById('bar').style.width=Math.min(100,(profit/20)*100)+'%';if(profit>=20){log('TARGET $20 REACHED');alert('$20 Done');running=false;return}if(running)setTimeout(startBot,2000)}if(d.buy)log('Trade placed')}}
+function startBot(){if(!ws){alert('Connect first');return}if(loss>=1)return;running=true;document.getElementById('startBtn').innerText='RUNNING...';log('BUY $1 1% TP $20');ws.send(JSON.stringify({buy:1,price:1,parameters:{amount:1,basis:'stake',contract_type:'ACCU',currency:'USD',symbol:'R_100',growth_rate:0.01,limit_order:{take_profit:20}}}))}function stopBot(){running=false;document.getElementById('startBtn').innerText='START $1 TO $20';log('Stopped')}
 </script></body></html>
