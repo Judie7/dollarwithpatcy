@@ -1,25 +1,16 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DollarWithPatcy - MATCHES ONLY</title>
-<style>
-body{background:#0f0f0f;color:#fff;font-family:Arial;padding:15px}
-.box{background:#1e1e1e;padding:12px;border-radius:10px;margin-bottom:10px;border:1px solid #333}
-input,button{width:100%;padding:12px;margin-top:8px;border-radius:8px;border:none}
-input{background:#2a2a2a;color:#fff}
-button{background:#00d084;color:#000;font-weight:bold}
-#scanner{background:#111;padding:10px;border-radius:8px;font-size:14px}
-.hot{color:#00ff88;font-weight:bold}
-</style>
-</head>
-<body>
-<h2>DollarWithPatcy - MATCHES PEKEE 🔥</h2>
-
-<div class="box">
-<input id="token" placeholder="Weka Deriv Token (pat_...)" />
-<input id="stake" type="number" value="0.35" step="0.01" placeholder="Stake" />
-<input id="target" type="number" value="5" placeholder="Target Profit $"/>
-<button id="startBtn">CONNECT & START MATCHES</button>
-<button id
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MATCHES ONLY</title>
+<style>body{background:#0f0f0f;color:#fff;font-family:Arial;padding:15px}.box{background:#1e1e1e;padding:12px;border-radius:10px;margin-bottom:10px;border:1px solid #333}input,button{width:100%;padding:14px;margin-top:8px;border-radius:8px;border:none}input{background:#2a2a2a;color:#fff}button{background:#00d084;color:#000;font-weight:bold}#scanner{background:#111;padding:12px;border-radius:8px;border:1px solid #00d084}</style>
+</head><body>
+<h2>MATCHES PEKEE - VUNAAA 🔥</h2>
+<div class="box"><input id="token" type="password" placeholder="Weka Token mpya"/><input id="stake" value="0.35"/><button id="startBtn">START VUNAAA 💰</button><button id="stopBtn" style="background:#ff4444;display:none">STOP</button></div>
+<div class="box">Balance: <b id="balance">--</b> | Profit: <b id="profit">$0.00</b><div id="status">Not connected</div></div>
+<div class="box"><div id="scanner">Waiting...</div><div id="digits" style="font-size:11px"></div></div>
+<div class="box" id="log" style="height:150px;overflow:auto;font-size:12px"></div>
+<script>
+let ws,ticks=[],running=false,initialBalance=0,balance=0,trading=false;
+document.getElementById('startBtn').onclick=()=>{let t=document.getElementById('token').value.trim();if(!t)return alert('Weka token');connect(t);};
+document.getElementById('stopBtn').onclick=()=>{running=false;ws.close();document.getElementById('stopBtn').style.display='none';};
+function connect(token){ws=new WebSocket('wss://ws.binaryws.com/websockets/v3?app_id=1089');ws.onopen=()=>ws.send(JSON.stringify({authorize:token}));ws.onmessage=e=>{let d=JSON.parse(e.data);if(d.error){document.getElementById('status').innerText=d.error.message;log(d.error.message);return;}if(d.authorize){log('Authorized '+d.authorize.loginid);ws.send(JSON.stringify({balance:1,subscribe:1}));ws.send(JSON.stringify({ticks:'R_10',subscribe:1}));running=true;document.getElementById('startBtn').style.display='none';document.getElementById('stopBtn').style.display='block';}if(d.balance){balance=parseFloat(d.balance.balance);if(initialBalance==0)initialBalance=balance;document.getElementById('balance').innerText='$'+balance.toFixed(2);document.getElementById('profit').innerText='$'+(balance-initialBalance).toFixed(2);}if(d.tick){let digit=parseInt(d.tick.quote.toString().slice(-1));ticks.push(digit);if(ticks.length>100)ticks.shift();if(ticks.length>=20){let c=Array(10).fill(0);ticks.forEach(x=>c[x]++);let max=Math.max(...c);let hot=c.indexOf(max);let per=((max/ticks.length)*100).toFixed(1);document.getElementById('scanner').innerHTML='HOT: '+hot+' ('+per+'%) - MATCHES '+hot;document.getElementById('digits').innerText=c.join(' | ');if(running&&!trading&&per>=14){trading=true;let stake=parseFloat(document.getElementById('stake').value);log('BUY MATCHES '+hot);ws.send(JSON.stringify({buy:1,price:stake,parameters:{amount:stake,basis:'stake',contract_type:'DIGITMATCH',barrier:hot.toString(),currency:'USD',duration:1,duration_unit:'t',symbol:'R_10'}}));setTimeout(()=>trading=false,5000);}}}if(d.buy){log('BOUGHT '+d.buy.contract_id);}};}
+function log(t){document.getElementById('log').innerHTML=new Date().toLocaleTimeString()+' - '+t+'<br>'+document.getElementById('log').innerHTML;}
+</script></body></html>
